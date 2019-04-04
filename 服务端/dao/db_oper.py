@@ -9,7 +9,7 @@ class DBOper:
 
     def open_conn(self):
         try:
-            conn = pymysql.connect(host,user,passwd,dbname)
+            conn = pymysql.connect(host,user,passwd,dbname,charset='utf8')
 
             self.conn = conn
             self.cursor = conn.cursor()
@@ -38,6 +38,7 @@ class DBOper:
             return result
 
         except Exception as e:
+            print(e)
             print("查询出错")
             return None
 
@@ -50,7 +51,30 @@ class DBOper:
             cursor.execute(sql)
 
             self.conn.commit()
+        except Exception as e:
+            print(e)
+            self.conn.rollback()
+            return 'update_False'
+        else:
+            return 'update_True'
+        finally:
             cursor.close()
 
+    def do_double_update(self,sql1,sql2):
+        if (not sql1 or sql1 == "") and (not sql2 or sql2 == ""):
+            print("SQL语句不合法")
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(sql1)
+            cursor.execute(sql2)
+
+            self.conn.commit()
         except Exception as e:
-            print("修改出错")
+            print(e)
+            self.conn.rollback()
+            return 'update_False'
+        else:
+            return 'update_True'
+        finally:
+            cursor.close()
